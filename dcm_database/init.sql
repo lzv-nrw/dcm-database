@@ -1,18 +1,36 @@
+CREATE TABLE migrations (
+  from_version text UNIQUE,
+  to_version text UNIQUE,
+  completed_at text
+);
+
+-- all rows must only contain a single non-pk col
+-- for example, do not combine schema_loaded with schema_version or
+-- otherwise migrations might yield unexpected results
 CREATE TABLE deployment (
   id uuid NOT NULL PRIMARY KEY,
   schema_loaded boolean,
   schema_version text,
-  demo_loaded boolean
+  demo_loaded boolean,
+  CONSTRAINT only_one_nullable CHECK (
+    (CASE WHEN schema_loaded IS NOT NULL THEN 1 ELSE 0 END) +
+    (CASE WHEN schema_version IS NOT NULL THEN 1 ELSE 0 END) +
+    (CASE WHEN demo_loaded IS NOT NULL THEN 1 ELSE 0 END)
+    = 1
+  )
 );
+
+-- Add unique constrain to reject duplicates of deployment table values
+CREATE UNIQUE INDEX only_one_schema_version ON deployment ((1)) WHERE schema_version IS NOT NULL;
 
 CREATE TABLE user_configs (
   id uuid NOT NULL PRIMARY KEY,
   external_id text,
   status text,
-  username text UNIQUE NOT NULL,
+  username text UNIQUE,
   firstname text,
   lastname text,
-  email text NOT NULL,
+  email text,
   widget_config jsonb,
   user_created uuid REFERENCES user_configs (id) ON DELETE SET NULL,
   user_modified uuid REFERENCES user_configs (id) ON DELETE SET NULL,
@@ -45,7 +63,7 @@ CREATE TABLE templates (
 
 CREATE TABLE user_secrets (
   id uuid NOT NULL PRIMARY KEY,
-  user_id uuid REFERENCES user_configs (id) NOT NULL,
+  user_id uuid NOT NULL REFERENCES user_configs (id) ON DELETE CASCADE,
   password text NOT NULL
 );
 
@@ -54,7 +72,7 @@ CREATE TABLE user_secrets (
 CREATE TABLE user_groups (
   id uuid NOT NULL PRIMARY KEY,
   group_id text NOT NULL,
-  user_id uuid REFERENCES user_configs (id) NOT NULL,
+  user_id uuid NOT NULL REFERENCES user_configs (id) ON DELETE CASCADE,
   workspace_id uuid REFERENCES workspaces (id) NULL,
   UNIQUE (group_id, user_id, workspace_id)
 );

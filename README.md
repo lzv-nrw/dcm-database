@@ -4,6 +4,10 @@ This repository contains scripts and documentation for the DCM Database containe
 The contents of this repository are part of the [`Digital Curation Manager`](https://github.com/lzv-nrw/digital-curation-manager).
 
 ## General
+
+The DCM Database can be run as either SQLite3 (intended for tests or demonstration) or PostgreSQL(14) (intended for an actual deployment).
+Please refer to the documentation of the DCM [Backend](https://github.com/lzv-nrw/dcm-backend) and [Job Processor](https://github.com/lzv-nrw/dcm-job-processor) services or the demo-deployments [here](https://github.com/lzv-nrw/digital-curation-manager) for documentation.
+
 The SQL database is defined by the file `./dcm_database/init.sql` and is structured into the following tables:
 * `user_configs`: user configurations
 * `user_secrets`: separate table to store user secrets
@@ -12,13 +16,50 @@ The SQL database is defined by the file `./dcm_database/init.sql` and is structu
 * `job_configs`: job configurations
 * `jobs`: results of job runs
 * `hotfolder_import_sources`: sources for hotfolder imports
+* `deployment`: deployment specific information (like schema version)
+* `migrations`: records of previous database schema-migrations
 
 In addition, the following auxiliary table is defined to map many-to-many relationships:
 * `user_groups`: relationships between `group_id` (*this key is currently not defined anywhere else*), `user_configs.id` and `workspaces.id`.
 
-## PostgreSQL
+## Deployment
 
-### Docker
+### Initialization
+
+In order to run the DCM, the database needs to be initialized.
+It is highly recommended to let that task be handled by the [`Backend`](https://github.com/lzv-nrw/dcm-backend) service.
+Please refer to the Backend's documentation or the demo-deployments [here](https://github.com/lzv-nrw/digital-curation-manager) for information on and example for how to do this.
+If the schema (located in `dcm_database/init.sql`) is loaded manually, remember to insert at least the `schema_version`-information into the `deployment`-table.
+This can be achieved with
+```sql
+INSERT INTO deployment (id, schema_version) VALUES ('<uuid>', '<schema-version>');
+```
+
+### Migration
+This repository contains SQL-scripts that enable incremental database schema migrations between release-versions.
+These scripts are intended to be run manually using (for example) `psql`.
+Generally, schema migration will only be supported for a PostgreSQL-database due to limitations in SQLite.
+
+In order to perform a migration from a previous version, first determine the current schema version via
+```sql
+SELECT schema_version FROM deployment;
+```
+Then find the appropriate migration script in the `migrations/`-directory.
+Lastly, run the contents of that file.
+Past migrations can be viewed with the following statement
+```sql
+SELECT * FROM migrations;
+```
+
+If the cli-tool `psql` is used, it is recommended to disable autocommit-mode
+```
+\set AUTOCOMMIT off
+```
+and run the migration-script as `\i <file>`.
+
+### PostgreSQL
+
+#### Docker
 Run a docker container with the following properties
 * deleted when stopped
 * name `dcm-database`
@@ -38,7 +79,7 @@ docker exec -it -u postgres dcm-database psql -c "SELECT * FROM workspaces;"
 docker exec -it -u postgres dcm-database psql -c "TRUNCATE workspaces CASCADE;"
 ```
 
-### psql
+#### psql
 Due to the exposed port `5432`, the running database can be interacted with via the front-end client `psql` (i.e., without `docker exec`).
 It may be necessary to install additional packages, like in debian, for example,
 ```
@@ -49,7 +90,7 @@ Test by running
 psql -h localhost -p 5432 -U postgres
 ```
 
-## SQLite
+### SQLite
 
 The script `./init.sql` can be used to initialize an SQLite database
 via the command-line program `sqlite3`. It may be necessary to install additional packages,
