@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2025-08-22
+
+### Changed
+
+- changed `user_groups.workspace_id` to trigger cascade on delete
+- changed `templates.workspace_id` to trigger set null on delete
+- changed `job_configs.template_id` to trigger cascade on delete
+
 ## [1.3.0] - 2025-08-08
 
 ### Changed

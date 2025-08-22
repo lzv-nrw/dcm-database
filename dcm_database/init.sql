@@ -20,7 +20,7 @@ CREATE TABLE deployment (
   )
 );
 
--- Add unique constrain to reject duplicates of deployment table values
+-- Add unique constraint to reject duplicates of deployment table values
 CREATE UNIQUE INDEX only_one_schema_version ON deployment ((1)) WHERE schema_version IS NOT NULL;
 
 CREATE TABLE user_configs (
@@ -50,7 +50,7 @@ CREATE TABLE workspaces (
 CREATE TABLE templates (
   id uuid NOT NULL PRIMARY KEY,
   status text,
-  workspace_id uuid REFERENCES workspaces (id) NULL,
+  workspace_id uuid REFERENCES workspaces (id) ON DELETE SET NULL,
   name text,
   description text,
   type text,
@@ -73,11 +73,11 @@ CREATE TABLE user_groups (
   id uuid NOT NULL PRIMARY KEY,
   group_id text NOT NULL,
   user_id uuid NOT NULL REFERENCES user_configs (id) ON DELETE CASCADE,
-  workspace_id uuid REFERENCES workspaces (id) NULL,
+  workspace_id uuid REFERENCES workspaces (id) ON DELETE CASCADE,
   UNIQUE (group_id, user_id, workspace_id)
 );
 
--- Add unique constrain to reject duplicates of (user_id, group_id) when workspace_id is NULL
+-- Add unique constraint to reject duplicates of (user_id, group_id) when workspace_id is NULL
 CREATE UNIQUE INDEX user_groups_no_workspace
 ON user_groups (user_id, group_id)
 WHERE workspace_id is NULL;
@@ -87,7 +87,7 @@ WHERE workspace_id is NULL;
 CREATE TABLE job_configs (
   id uuid NOT NULL PRIMARY KEY,
   status text,
-  template_id uuid REFERENCES templates (id) NOT NULL,
+  template_id uuid NOT NULL REFERENCES templates (id) ON DELETE CASCADE,
   latest_exec uuid,
   name text,
   description text,

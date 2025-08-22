@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(
-    version="1.3.0",
+    version="1.4.0",
     name="dcm-database",
     description="database for the dcm",
     author="LZV.nrw",
