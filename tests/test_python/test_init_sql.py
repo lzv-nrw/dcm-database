@@ -2,7 +2,7 @@
 Test compatibility of database-schema with database-implementation via
 dcm-common adapters.
 
-In order to run the tests for the class `PostgreSQLAdapterSQL14`,
+In order to run the tests for the class `PostgreSQLAdapter14`,
 a PostgreSQL-database with the following properties is required:
 * host: localhost
 * port: 5432
@@ -16,7 +16,7 @@ The test includes deleting, recreating, and modifying the database
 from pathlib import Path
 
 import pytest
-from dcm_common.db import SQLiteAdapter3, PostgreSQLAdapterSQL14
+from dcm_common.db import SQLiteAdapter3, PostgreSQLAdapter14
 
 import dcm_database
 
@@ -42,7 +42,7 @@ def test_postgres14(sql_path):
     """
     def get_postgres_adapter(**kwargs):
         """Returns PostgreSQL-adapter."""
-        return PostgreSQLAdapterSQL14(
+        return PostgreSQLAdapter14(
             **(
                 {
                     "host": "localhost",

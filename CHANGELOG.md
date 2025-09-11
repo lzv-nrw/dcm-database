@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] - 2025-09-11
+
+### Removed
+
+- removed obsolete table `hotfolder_import_sources`
+
+### Fixed
+
+- fixed dev-dependency versions
+
 ## [1.4.0] - 2025-08-22
 
 ### Changed

@@ -128,10 +128,3 @@ CREATE TABLE records (
   ie_id text,
   datetime_processed text
 );
-
-CREATE TABLE hotfolder_import_sources (
-  id uuid NOT NULL PRIMARY KEY,
-  name text,
-  path text,
-  description text
-);
