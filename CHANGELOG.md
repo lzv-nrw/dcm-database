@@ -1,10 +1,10 @@
 # Changelog
 
-## [1.5.0] - 2025-09-11
+## [2.0.0] - 2025-09-11
 
 ### Removed
 
-- removed obsolete table `hotfolder_import_sources`
+- **Breaking:** removed obsolete table `hotfolder_import_sources`
 
 ### Fixed
 
