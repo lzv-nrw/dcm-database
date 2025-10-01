@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0] - 2025-10-01
+
+### Added
+
+- added column `target_archive` to `templates`-table
+
 ## [2.0.0] - 2025-09-11
 
 ### Removed

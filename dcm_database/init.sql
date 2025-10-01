@@ -55,6 +55,7 @@ CREATE TABLE templates (
   description text,
   type text,
   additional_information jsonb,
+  target_archive jsonb,
   user_created uuid REFERENCES user_configs (id) ON DELETE SET NULL,
   user_modified uuid REFERENCES user_configs (id) ON DELETE SET NULL,
   datetime_created text,
