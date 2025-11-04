@@ -6,21 +6,9 @@ The contents of this repository are part of the [`Digital Curation Manager`](htt
 ## General
 
 The DCM Database can be run as either SQLite3 (intended for tests or demonstration) or PostgreSQL(14) (intended for an actual deployment).
-Please refer to the documentation of the DCM [Backend](https://github.com/lzv-nrw/dcm-backend) and [Job Processor](https://github.com/lzv-nrw/dcm-job-processor) services or the demo-deployments [here](https://github.com/lzv-nrw/digital-curation-manager) for documentation.
+Please refer to the documentation of the individual microservices [Backend](https://github.com/lzv-nrw/dcm-backend) or [Job Processor](https://github.com/lzv-nrw/dcm-job-processor) or the demo-deployments [here](https://github.com/lzv-nrw/digital-curation-manager) for more information.
 
-The SQL database is defined by the file `./dcm_database/init.sql` and is structured into the following tables:
-* `user_configs`: user configurations
-* `user_secrets`: separate table to store user secrets
-* `workspaces`: workspace configurations
-* `templates`: template configurations
-* `job_configs`: job configurations
-* `jobs`: results of job runs
-* `hotfolder_import_sources`: sources for hotfolder imports
-* `deployment`: deployment specific information (like schema version)
-* `migrations`: records of previous database schema-migrations
-
-In addition, the following auxiliary table is defined to map many-to-many relationships:
-* `user_groups`: relationships between `group_id` (*this key is currently not defined anywhere else*), `user_configs.id` and `workspaces.id`.
+The SQL database is defined by the initialization script located in `dcm_database/init.sql`.
 
 ## Deployment
 

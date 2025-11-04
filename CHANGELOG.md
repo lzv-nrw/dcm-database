@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0] - 2025-11-04
+
+### Changed
+
+- **Breaking:** separated `records` into two tables: `records` and `ies`
+
+### Added
+
+- added column `datetime_artifacts_expire` to table `jobs`
+- added table `artifacts`
+
 ## [2.1.0] - 2025-10-01
 
 ### Added
