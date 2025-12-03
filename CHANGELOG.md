@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.0] - 2025-12-03
+
+### Added
+
+- added `job_collections`-table and references in `jobs` and `records` (to support batched processing)
+- added `ON DELETE SET NULL` action in `artifacts.record_id` field
+- added column `baginfo_metadata` to table `records`
+- added constraint to `jobs` to ensure only one queued/running job per job config can exist
+
 ## [3.0.0] - 2025-11-04
 
 ### Changed

@@ -102,6 +102,13 @@ CREATE TABLE job_configs (
   schedule jsonb
 );
 
+-- collections of jobs that are broken into multiple batches
+CREATE TABLE job_collections (
+  id uuid NOT NULL PRIMARY KEY,
+  job_config_id uuid REFERENCES job_configs (id) ON DELETE SET NULL,
+  completed boolean
+);
+
 CREATE TABLE jobs (
   token uuid NOT NULL PRIMARY KEY,
   status text,
@@ -113,8 +120,15 @@ CREATE TABLE jobs (
   success boolean,
   datetime_started text,
   datetime_ended text,
+  collection_id uuid REFERENCES job_collections (id) ON DELETE SET NULL,
   report jsonb
 );
+
+-- job-configurations must not be associated with more than one job that
+-- is queued or running
+CREATE UNIQUE INDEX unique_job_execution_per_config
+ON jobs (job_config_id)
+WHERE job_config_id IS NOT NULL AND (status = 'queued' OR status = 'running');
 
 -- see comment before job_configs-table
 -- ALTER TABLE job_configs ADD FOREIGN KEY (latest_exec) REFERENCES jobs(token);
@@ -137,6 +151,7 @@ CREATE TABLE ies (
 CREATE TABLE records ( -- processing-iterations of an IE
     id uuid NOT NULL PRIMARY KEY,
     job_config_id uuid NOT NULL REFERENCES job_configs (id) ON DELETE CASCADE,
+    collection_id uuid REFERENCES job_collections (id) ON DELETE SET NULL,
     job_token uuid NOT NULL REFERENCES jobs (token),
     ie_id uuid REFERENCES ies (id), -- set as soon as identification is possible
     status text CHECK(
@@ -165,7 +180,8 @@ CREATE TABLE records ( -- processing-iterations of an IE
     oai_datestamp text, -- as reported by Import Module
     hotfolder_original_path text, -- as reported by Import Module
     archive_ie_id text, -- as reported by the archive system
-    archive_sip_id text -- as reported by the archive system
+    archive_sip_id text, -- as reported by the archive system
+    baginfo_metadata jsonb -- as reported by IP Builder or Preparation Module
 );
 
 -- view that combines ies with info from latest record
@@ -184,7 +200,8 @@ SELECT
     records.oai_datestamp AS latest_record_oai_datestamp,
     records.hotfolder_original_path AS latest_record_hotfolder_original_path,
     records.archive_ie_id AS latest_record_archive_ie_id,
-    records.archive_sip_id AS latest_record_archive_sip_id
+    records.archive_sip_id AS latest_record_archive_sip_id,
+    records.baginfo_metadata AS latest_record_baginfo_metadata
 FROM ies
 LEFT JOIN records
     ON records.id = (
@@ -203,7 +220,7 @@ CREATE TABLE artifacts (
   id uuid NOT NULL PRIMARY KEY,
   path text NOT NULL,
   datetime_expires text,
-  record_id uuid REFERENCES records (id), -- associated record
+  record_id uuid REFERENCES records (id) ON DELETE SET NULL, -- associated record
   stage text CHECK(
     stage IN (
       'import_ies',
